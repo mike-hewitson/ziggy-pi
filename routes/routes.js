@@ -15,7 +15,6 @@ var SerialPort = require('serialport');
 
 const leftPad = require('left-pad');
 var rightPad = require('right-pad');
-var gpio = require('rpi-gpio');
 
 const screenClear = Buffer.from([0xFE, 0x01]);
 const cursorOff = Buffer.from([0xFE, 0x0C]);
@@ -41,52 +40,27 @@ var appRouter = function(app) {
         mySerial.on('open', function() {
             myLogger.info('Port opened');
             mySerial.write(screenClear);
-            var amountmessage = 'Amnt' + leftPad("R " + req.body.amount.toFixed(2), 12);
-            var balancemessage = 'Bal ' + leftPad("R " + req.body.balance.toFixed(2), 12);
-            mySerial.write(amountmessage + balancemessage, function() {
-                myLogger.info('wrote to ziggy :' + amountmessage);
-                myLogger.info('wrote to ziggy :' + balancemessage);
-
-                gpio.setup(7, gpio.DIR_OUT, write);
-
-                function write() {
-                    gpio.write(7, true, function(err) {
-                        if (err) throw err;
-                        myLogger.info('Written to pin 7 - on');
-                        gpio.write(7, false, function(err) {
-                            if (err) throw err;
-                            myLogger.info('Written to pin 7 - off');
-                            process.exit();
-                        });
+            var line1 = rightPad(req.body.description, 12);
+            var line2 = 'Amnt' + leftPad("R " + req.body.amount.toFixed(2), 12);
+            var line3 = 'Bal ' + leftPad("R " + req.body.balance.toFixed(2), 12);
+            var line4 = "I" + rightPad("-".repeat(req.body.progress) + ">", 14) + "I";
+            mySerial.write(line1 + line2, function() {
+                myLogger.info(new Date());
+                myLogger.info('wrote to ziggy :' + line1);
+                myLogger.info('wrote to ziggy :' + line2);
+                setTimeout(function() {
+                    mySerial.write(line3 + line4, function() {
+                        new Sound('football-crowd.wav').play();
+                        myLogger.info(new Date());
+                        myLogger.info('wrote to ziggy :' + line3);
+                        myLogger.info('wrote to ziggy :' + line4);
+                        process.exit();
                     });
-                }
+                }, 10000);
             });
         });
         return res.send(req.body);
-    });
-
-    app.post("/goal", function(req, res) {
-
-        myLogger.info(req.body);
-        // fire and forget: 
-        new Sound('football-crowd.wav').play();
-
-        var mySerial = new SerialPort('/dev/serial0', {
-            baudRate: 9600
-        });
-        mySerial.on('open', function() {
-            myLogger.info('Port opened');
-            mySerial.write(screenClear);
-            var goalAmntMessage = 'goal' + leftPad("R " + req.body.goal.toFixed(2), 12);
-            var goalMessage = rightPad("X".repeat(req.body.progress), 16);
-            mySerial.write(goalAmntMessage + goalMessage, function() {
-                myLogger.info('wrote to ziggy :' + goalAmntMessage);
-                myLogger.info('wrote to ziggy :' + goalMessage);
-                process.exit();
-            });
-        });
-        return res.send(req.body);
-    });
+    }); 
 
     app.post("/sound", function(req, res) {
         myLogger.info(req.body);
