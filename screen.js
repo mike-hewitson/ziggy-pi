@@ -20,14 +20,9 @@ const screenOff = Buffer.from([0xFE, 0x08]);
 const backlightOff = Buffer.from([0x7C, 0x80]);
 const backlightHalf = Buffer.from([0x7C, 0x8F]);
 
-// for Pi 3 and pi 1
 var mySerial = new SerialPort('/dev/serial0', {
     baudRate: 9600
 });
-// for Pi 1
-// var mySerial = new SerialPort('/dev/ttyAMA0', {
-//     baudRate: 9600
-// });
 
 function writeAndDrain (data, callback) {
   mySerial.write(data, function () {
@@ -46,7 +41,7 @@ mySerial.on('open', function() {
     // mySerial.write(backlightOff);
     // mySerial.write(backlightHalf);
     // mySerial.write(cursorOff);
-
+    var message = 
     mySerial.write("Hello, Ziggy1!  ");
     mySerial.write("--     1        ");
     // mySerial.write("--     2        ");
