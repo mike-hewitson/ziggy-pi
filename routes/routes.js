@@ -55,7 +55,7 @@ var appRouter = function(app) {
 
         myLogger.info(req.body);
         // fire and forget: 
-        new Sound('goal-cheering.wav').play();
+        new Sound('zebra.wav').play();
 
         var mySerial = new SerialPort('/dev/serial0', {
             baudRate: 9600
