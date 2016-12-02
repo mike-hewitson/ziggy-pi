@@ -13,6 +13,8 @@ var myLogger = new winston.Logger({
 
 var SerialPort = require('serialport');
 
+const leftPad = require('left-pad');
+
 const screenClear = Buffer.from([0xFE, 0x01]);
 const cursorOff = Buffer.from([0xFE, 0x0C]);
 const screenOff = Buffer.from([0xFE, 0x08]);
@@ -37,10 +39,10 @@ var appRouter = function(app) {
         mySerial.on('open', function() {
             myLogger.info('Port opened');
             mySerial.write(screenClear);
-            var amountmessage = 'Amount : R ' + req.body.amount.format(2);
-            var balancemessage = 'Balance : R ' + req.body.balance.format(2);
-            mySerial.write(amountmessage);
-            mySerial.write(balancemessage);
+            var amountmessage = 'Amnt' + leftPad(req.body.amount.toFixed(2),12);
+            var balancemessage = 'Bal ' + leftPad(req.body.balance.toFixed(2),12);
+            // mySerial.write(amountmessage);
+            // mySerial.write(balancemessage);
             myLogger.info('wrote to ziggy :' + amountmessage);
             myLogger.info('wrote to ziggy :' + balancemessage);
             // process.exit();
