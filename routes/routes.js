@@ -55,7 +55,7 @@ var appRouter = function(app) {
 
         myLogger.info(req.body);
         // fire and forget: 
-        new Sound('zebra.wav').play();
+        new Sound('goal-cheering.wav').play();
 
         var mySerial = new SerialPort('/dev/serial0', {
             baudRate: 9600
@@ -63,7 +63,7 @@ var appRouter = function(app) {
         mySerial.on('open', function() {
             myLogger.info('Port opened');
             mySerial.write(screenClear);
-            var goalAmntMessage = 'Amnt' + leftPad("R " + req.body.goal.toFixed(2), 12);
+            var goalAmntMessage = 'goal' + leftPad("R " + req.body.goal.toFixed(2), 12);
             var goalMessage = rightPad("X".repeat(req.body.progress), 16);
             mySerial.write(goalAmntMessage + goalMessage, function() {
                 myLogger.info('wrote to ziggy :' + goalAmntMessage);

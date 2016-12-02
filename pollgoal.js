@@ -33,9 +33,6 @@ var balance = {
                 myLogger.info('document read');
                 myLogger.info(body);
 
-
-
-                
                 setTimeout(function() {
                     balance.read();
                 }, 3000);
