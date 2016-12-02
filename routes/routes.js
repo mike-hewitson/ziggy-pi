@@ -4,7 +4,13 @@ var appRouter = function(app) {
     res.send("Hello World");
 });
 
-}
- 
+app.post("/transfer", function(req, res) {
+	 console.log(req.body.amount);
+	 console.log(req.body.balance);
+	 
+});
+
+};
+
 module.exports = appRouter;
 
