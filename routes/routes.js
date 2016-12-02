@@ -12,6 +12,9 @@ var myLogger = new winston.Logger({
     ]
 });
 
+
+
+
 var SerialPort = require('serialport');
 
 const screenClear = Buffer.from([0xFE, 0x01]);
@@ -20,9 +23,6 @@ const screenOff = Buffer.from([0xFE, 0x08]);
 const backlightOff = Buffer.from([0x7C, 0x80]);
 const backlightHalf = Buffer.from([0x7C, 0x8F]);
 
-var mySerial = new SerialPort('/dev/serial0', {
-    baudRate: 9600
-});
 
 var appRouter = function(app) {
 
@@ -33,15 +33,19 @@ var appRouter = function(app) {
     app.post("/transfer", function(req, res) {
 
         myLogger.info(req.body);
-        return res.send(req.body);
+
+        var mySerial = new SerialPort('/dev/serial0', {
+            baudRate: 9600
+        });
         mySerial.on('open', function() {
             myLogger.info('Port opened');
             mySerial.write(screenClear);
             var message = req.body.balance + " - " + req.body.amount;
             mySerial.write(message);
-            myLogger.info('wrote hello ziggy');
+            myLogger.info('wrote to ziggy :' + message);
             // process.exit();
         });
+        return res.send(req.body);
     });
 };
 
