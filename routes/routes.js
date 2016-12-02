@@ -40,9 +40,12 @@ var appRouter = function(app) {
         mySerial.on('open', function() {
             myLogger.info('Port opened');
             mySerial.write(screenClear);
-            var message = req.body.balance + " - " + req.body.amount;
-            mySerial.write(message);
-            myLogger.info('wrote to ziggy :' + message);
+            var amountmessage =  'Amount : R ' + req.body.amount.format(2);
+            var balancemessage ='Balance : R ' + req.body.balance.format(2);
+            mySerial.write(amountmessage);
+            mySerial.write(balancemessage);
+            myLogger.info('wrote to ziggy :' + amountmessage);
+            myLogger.info('wrote to ziggy :' + balancemessage);
             // process.exit();
         });
         return res.send(req.body);
