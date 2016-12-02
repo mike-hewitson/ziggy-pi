@@ -13,6 +13,7 @@
     "node-aplay": "^1.0.3",
     "request": "^2.78.0",
     "right-pad": "^1.0.1",
+    "rpi-gpio": "^0.7.0",
     "serialport": "^4.0.6",
     "winston": "^2.3.0"
   }

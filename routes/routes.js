@@ -15,6 +15,7 @@ var SerialPort = require('serialport');
 
 const leftPad = require('left-pad');
 var rightPad = require('right-pad');
+var gpio = require('rpi-gpio');
 
 const screenClear = Buffer.from([0xFE, 0x01]);
 const cursorOff = Buffer.from([0xFE, 0x0C]);
@@ -45,7 +46,20 @@ var appRouter = function(app) {
             mySerial.write(amountmessage + balancemessage, function() {
                 myLogger.info('wrote to ziggy :' + amountmessage);
                 myLogger.info('wrote to ziggy :' + balancemessage);
-                process.exit();
+
+                gpio.setup(7, gpio.DIR_OUT, write);
+
+                function write() {
+                    gpio.write(7, true, function(err) {
+                        if (err) throw err;
+                        myLogger.info('Written to pin 7 - on');
+                        gpio.write(7, false, function(err) {
+                            if (err) throw err;
+                            myLogger.info('Written to pin 7 - off');
+                            process.exit();
+                        });
+                    });
+                }
             });
         });
         return res.send(req.body);
@@ -55,7 +69,7 @@ var appRouter = function(app) {
 
         myLogger.info(req.body);
         // fire and forget: 
-        new Sound('zebra.wav').play();
+        new Sound('football-crowd.wav').play();
 
         var mySerial = new SerialPort('/dev/serial0', {
             baudRate: 9600
@@ -77,7 +91,7 @@ var appRouter = function(app) {
     app.post("/sound", function(req, res) {
         myLogger.info(req.body);
         // fire and forget: 
-        new Sound(req.body.sound+'.wav').play();
+        new Sound(req.body.sound + '.wav').play();
         return res.send(req.body);
     });
 };
