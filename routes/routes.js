@@ -1,6 +1,5 @@
-var request = require('request');
 var winston = require('winston');
-var Papertrail = require('winston-papertrail').Papertrail;
+var Sound = require('node-aplay');
 
 var myLogger = new winston.Logger({
     transports: [
@@ -12,9 +11,6 @@ var myLogger = new winston.Logger({
     ]
 });
 
-
-
-
 var SerialPort = require('serialport');
 
 const screenClear = Buffer.from([0xFE, 0x01]);
@@ -22,7 +18,6 @@ const cursorOff = Buffer.from([0xFE, 0x0C]);
 const screenOff = Buffer.from([0xFE, 0x08]);
 const backlightOff = Buffer.from([0x7C, 0x80]);
 const backlightHalf = Buffer.from([0x7C, 0x8F]);
-
 
 var appRouter = function(app) {
 
@@ -33,6 +28,8 @@ var appRouter = function(app) {
     app.post("/transfer", function(req, res) {
 
         myLogger.info(req.body);
+        // fire and forget: 
+        new Sound('zebra.wav').play();
 
         var mySerial = new SerialPort('/dev/serial0', {
             baudRate: 9600
@@ -40,8 +37,8 @@ var appRouter = function(app) {
         mySerial.on('open', function() {
             myLogger.info('Port opened');
             mySerial.write(screenClear);
-            var amountmessage =  'Amount : R ' + req.body.amount.format(2);
-            var balancemessage ='Balance : R ' + req.body.balance.format(2);
+            var amountmessage = 'Amount : R ' + req.body.amount.format(2);
+            var balancemessage = 'Balance : R ' + req.body.balance.format(2);
             mySerial.write(amountmessage);
             mySerial.write(balancemessage);
             myLogger.info('wrote to ziggy :' + amountmessage);

@@ -1,9 +1,7 @@
 "use strict";
 
-require('dotenv').config();
 var request = require('request');
 var winston = require('winston');
-var Papertrail = require('winston-papertrail').Papertrail;
 
 var myLogger = new winston.Logger({
     transports: [
@@ -11,17 +9,9 @@ var myLogger = new winston.Logger({
             json: false,
             expressFormat: true,
             colorize: true
-        }),
-        new winston.transports.Papertrail({
-            host: 'logs4.papertrailapp.com',
-            port: 32583,
-            program: 'ziggy-main',
-            colorize: true
         })
     ]
 });
-
-// emitter.setMaxListeners();
 
 var url = 'https://api.dev.secure.investec.com';
 

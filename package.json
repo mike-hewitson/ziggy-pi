@@ -13,6 +13,5 @@
     "request": "^2.78.0",
     "serialport": "^4.0.6",
     "winston": "^2.3.0",
-    "winston-papertrail": "^1.0.4"
   }
 }
