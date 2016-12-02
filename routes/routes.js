@@ -1,6 +1,6 @@
 var winston = require('winston');
 var Sound = require('node-aplay');
-var series = require('async/series');
+var async = require('async');
 
 var myLogger = new winston.Logger({
     transports: [
@@ -23,11 +23,6 @@ const screenOff = Buffer.from([0xFE, 0x08]);
 const backlightOff = Buffer.from([0x7C, 0x80]);
 const backlightHalf = Buffer.from([0x7C, 0x8F]);
 
-function writeAndDrain(data, callback) {
-    mySerialrial.write(data, function() {
-        mySerial.drain(callback);
-    });
-}
 
 var appRouter = function(app) {
 
@@ -44,6 +39,12 @@ var appRouter = function(app) {
         var mySerial = new SerialPort('/dev/serial0', {
             baudRate: 9600
         });
+
+        function writeAndDrain(data, callback) {
+            mySerial.write(data, function() {
+                mySerial.drain(callback);
+            });
+        }
         mySerial.on('open', function() {
             myLogger.info('Port opened');
             mySerial.write(screenClear);
@@ -89,21 +90,23 @@ var appRouter = function(app) {
                     function(callback) {
                         myLogger.info('Port opened');
                         mySerial.write(screenClear);
+                        callback();
                     },
                     function(callback) {
                         mySerial.write(line1 + line2);
-                    },
-                    function(callback) {
-                        mySerial.drain();
-                    },
-                    function(callback) {
                         myLogger.info(new Date());
                         myLogger.info('wrote to ziggy :' + line1);
                         myLogger.info('wrote to ziggy :' + line2);
+                        callback();
+                    },
+                    function(callback) {
+                        mySerial.drain();
+                        myLogger.info('drained');
+                        callback();
                     },
                     function(callback) {
                         setTimeout(function() {
-                            mySerial.writeAndDrain(line3 + line4, function() {
+                            mySerial.write(line3 + line4, function() {
                                 new Sound('football-crowd.wav').play();
                                 myLogger.info(new Date());
                                 myLogger.info('wrote to ziggy :' + line3);
@@ -112,13 +115,9 @@ var appRouter = function(app) {
                                 // process.exit();
                             });
                         }, 10000);
+                        callback();
                     }
-                ],
-                // optional callback
-                function(err) {
-                    myLogger.error(err);
-                    // results is now equal to ['one', 'two']
-                });
+                 ]);
 
         });
         return res.send(req.body);
