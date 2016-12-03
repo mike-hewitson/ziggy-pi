@@ -74,10 +74,15 @@ var appRouter = function(app) {
 
         myLogger.info(req.body);
 
-        var line1 = rightPad(req.body.description, 12);
+        var line1 = rightPad(req.body.description, 16);
         var line2 = 'Amnt' + leftPad("R " + req.body.amount.toFixed(2), 12);
         var line3 = 'Bal ' + leftPad("R " + req.body.balance.toFixed(2), 12);
-        var line4 = "I" + rightPad("-".repeat(req.body.progress) + ">", 14) + "I";
+        var line4;
+        if (req.body.progress == 13) {
+            line4 = rightPad("Laduma!!!!!!!", 16);
+        } else {
+            line4 = "I" + rightPad("-".repeat(req.body.progress) + ">", 14) + "I";
+        }
 
         // fire and forget: 
         new Sound('kaching.wav').play();
@@ -87,37 +92,41 @@ var appRouter = function(app) {
         });
         mySerial.on('open', function() {
             async.series([
-                    function(callback) {
-                        myLogger.info('Port opened');
-                        mySerial.write(screenClear);
-                        callback();
-                    },
-                    function(callback) {
-                        mySerial.write(line1 + line2);
-                        myLogger.info(new Date());
-                        myLogger.info('wrote to ziggy :' + line1);
-                        myLogger.info('wrote to ziggy :' + line2);
-                        callback();
-                    },
-                    function(callback) {
-                        mySerial.drain();
-                        myLogger.info('drained');
-                        callback();
-                    },
-                    function(callback) {
-                        setTimeout(function() {
-                            mySerial.write(line3 + line4, function() {
+                function(callback) {
+                    myLogger.info('Port opened');
+                    mySerial.write(screenClear);
+                    callback();
+                },
+                function(callback) {
+                    mySerial.write(line1 + line2);
+                    myLogger.info(new Date());
+                    myLogger.info('wrote to ziggy :' + line1);
+                    myLogger.info('wrote to ziggy :' + line2);
+                    callback();
+                },
+                function(callback) {
+                    mySerial.drain();
+                    myLogger.info('drained');
+                    callback();
+                },
+                function(callback) {
+                    setTimeout(function() {
+                        mySerial.write(line3 + line4, function() {
+                            if (req.body.progress == 13) {
+                                new Sound('zebra.wav').play();
+                            } else {
                                 new Sound('football-crowd.wav').play();
-                                myLogger.info(new Date());
-                                myLogger.info('wrote to ziggy :' + line3);
-                                myLogger.info('wrote to ziggy :' + line4);
-                                mySerial.close();
-                                // process.exit();
-                            });
-                        }, 10000);
-                        callback();
-                    }
-                 ]);
+                            }
+                            myLogger.info(new Date());
+                            myLogger.info('wrote to ziggy :' + line3);
+                            myLogger.info('wrote to ziggy :' + line4);
+                            mySerial.close();
+                            // process.exit();
+                        });
+                    }, 10000);
+                    callback();
+                }
+            ]);
 
         });
         return res.send(req.body);
