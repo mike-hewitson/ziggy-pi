@@ -78,8 +78,11 @@ var appRouter = function(app) {
         var line2 = 'Amnt' + leftPad("R " + req.body.amount.toFixed(2), 12);
         var line3 = 'Bal ' + leftPad("R " + req.body.balance.toFixed(2), 12);
         var line4;
+        if (req.body.progress === 0) {
+        	req.body.progress = 1;
+        }
         if (req.body.progress == 13) {
-            line4 = rightPad("Laduma!!!!!!!", 16);
+            line4 = rightPad("!!!!!LADUMA!!!!!", 16);
         } else {
             line4 = "I" + rightPad("-".repeat(req.body.progress) + ">", 14) + "I";
         }
@@ -123,7 +126,7 @@ var appRouter = function(app) {
                             mySerial.close();
                             // process.exit();
                         });
-                    }, 10000);
+                    }, 5000);
                     callback();
                 }
             ]);
